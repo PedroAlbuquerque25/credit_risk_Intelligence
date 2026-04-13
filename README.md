@@ -2,6 +2,12 @@
 
 ## Predicting Loan Default Risk for Canadian Banking Institutions
 
+<div align="center">
+  <img src="dashboard/dashboard_demo.gif" alt="Credit Risk Dashboard Demo" width="900">
+</div>
+
+<br>
+
 ![Python](https://img.shields.io/badge/Python-3.13-blue)
 ![Scikit-learn](https://img.shields.io/badge/Scikit--learn-ML-orange)
 ![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red)
@@ -25,20 +31,20 @@ Canadian banks issue millions of personal loans annually. Each defaulting custom
 ## 📊 Dataset
 
 - **Source:** [Give Me Some Credit — Kaggle](https://www.kaggle.com/competitions/GiveMeSomeCredit)
-- **Size:** 150,000 customers, 11 financial variables
+- **Size:** 150,000 customers, 11 financial variables  
 - **Target:** `SeriousDlqin2yrs` — whether a customer experienced 90+ days delinquency
 
 ---
 
 ## 🔍 Key Results
 
-| Metric | Logistic Regression | Random Forest |
-|--------|-------------------|---------------|
-| AUC-ROC | 0.79 | **0.86** |
-| Recall (Default) | 0.14 | **0.71** |
-| Precision (Default) | 0.60 | 0.22 |
+| Metric                | Logistic Regression | Random Forest |
+|----------------------|-------------------|---------------|
+| AUC-ROC              | 0.79              | **0.86**      |
+| Recall (Default)     | 0.14              | **0.71**      |
+| Precision (Default)  | 0.60              | 0.22          |
 
-> The Random Forest model captures **71% of actual defaulters** — critical for minimizing bank losses.
+> **Business Insight:** The Random Forest model captures **71% of actual defaulters**, which is a critical improvement for minimizing a bank's capital loss compared to traditional baseline models.
 
 ---
 
@@ -58,33 +64,35 @@ credit-risk-project/
 ├── src/
 │   └── queries.sql               # 5 business SQL queries
 ├── dashboard/
-│   └── app.py                    # Streamlit interactive app
+│   ├── app.py                    # Streamlit interactive app
+│   └── model.pkl                 # Trained Random Forest Model
 └── README.md                     # Project documentation
-
+```
+ 
 ---
 
 ## 🛠️ Tech Stack
 
-| Tool | Purpose |
-|------|---------|
-| Python | Core language |
-| Pandas | Data manipulation |
-| Scikit-learn | Machine learning |
-| SQL + SQLite | Business queries |
-| Streamlit | Interactive dashboard |
-| Matplotlib / Seaborn | Visualizations |
-| Git + GitHub | Version control |
+| Tool           | Purpose                                      |
+|----------------|----------------------------------------------|
+| Python         | Core language & analysis                     |
+| Pandas         | Data manipulation                            |
+| Scikit-learn   | Machine learning (Random Forest)             |
+| SQL + SQLite   | Advanced business queries                    |
+| Streamlit      | Interactive dashboard & simulation           |
+| Plotly         | High-fidelity interactive visualizations     |
+| Git + GitHub   | Version control & documentation              |
 
 ---
 
 ## 📦 Customer Segments (K-Means)
 
-| Segment | Default Rate | Profile |
-|---------|-------------|---------|
-| 🟢 Golden Seniors | 2% | High income, low utilization, age 60+ |
-| 🔴 Red Zone | 39% | High late payments, maxed credit |
-| 🟡 Young & Stretched | 7% | Young, moderate usage |
-| 🟠 Asset Rich Cash Poor | 5% | High debt ratio, lower income |
+| Segment                  | Default Rate | Profile                                      |
+|--------------------------|-------------|----------------------------------------------|
+| 🟢 Golden Seniors        | 2%          | High income, low utilization, age 60+        |
+| 🔴 Red Zone              | 39%         | High late payments, maxed credit             |
+| 🟡 Young & Stretched     | 7%          | Young, moderate usage                        |
+| 🟠 Asset Rich Cash Poor  | 5%          | High debt ratio, lower income                |
 
 ---
 
@@ -100,7 +108,7 @@ python -m venv venv
 source venv/bin/activate
 
 # Install dependencies
-pip install pandas numpy scikit-learn matplotlib seaborn streamlit
+pip install pandas numpy scikit-learn matplotlib seaborn streamlit plotly watchdog
 
 # Run the dashboard
 streamlit run dashboard/app.py
