@@ -1,0 +1,15 @@
+# Data Manipulation
+pandas
+numpy
+
+# Machine Learning & Preprocessing
+scikit-learn
+
+# Data Visualization
+matplotlib
+seaborn
+plotly
+
+# Dashboard & Web Interface
+streamlit
+watchdog
