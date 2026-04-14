@@ -12,13 +12,13 @@ st.set_page_config(
 )
 
 # ── Paths ─────────────────────────────────────────────────
-# Define o caminho base para encontrar as pastas /data e /dashboard
+# Define the base path to locate /data and /dashboard folders
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ── Load data ─────────────────────────────────────────────
 @st.cache_data
 def load_data():
-    # Carregamento dos CSVs usando caminhos absolutos robustos
+    # Robust absolute path loading for CSV files
     segments = pd.read_csv(os.path.join(BASE_DIR, 'data', 'customer_segments.csv'))
     results  = pd.read_csv(os.path.join(BASE_DIR, 'data', 'model_results.csv'))
     features = pd.read_csv(os.path.join(BASE_DIR, 'data', 'feature_importance.csv'))
@@ -26,11 +26,11 @@ def load_data():
 
 @st.cache_resource
 def load_model():
-    # Carregamento do modelo Random Forest
+    # Load the trained Random Forest model
     with open(os.path.join(BASE_DIR, 'dashboard', 'model.pkl'), 'rb') as f:
         return pickle.load(f)
 
-# Execução do carregamento
+# Execution of data loading
 try:
     segments, results, features = load_data()
     model = load_model()
@@ -58,7 +58,7 @@ col4.metric("Hidden Defaults", f"{missed:,}",  delta=f"-{missed/defaults*100:.1f
 
 st.divider()
 
-# ── Segment distribution & Performance ────────────────────
+# ── Middle Section: Segments & Feature Importance ──────────
 col_left, col_right = st.columns(2)
 
 with col_left:
@@ -66,7 +66,6 @@ with col_left:
     seg_count = segments['cluster_name'].value_counts().reset_index()
     seg_count.columns = ['Segment', 'Count']
     
-    # Gráfico interativo com Plotly para evitar textos cortados
     fig_seg = px.bar(
         seg_count, 
         x='Segment', 
@@ -85,23 +84,45 @@ with col_left:
     st.plotly_chart(fig_seg, use_container_width=True)
 
 with col_right:
-    st.subheader("🎯 Model Performance")
-    perf = results['result_type'].value_counts().reset_index()
-    perf.columns = ['Result Type', 'Count']
-    # Tabela limpa sem o índice lateral
-    st.dataframe(perf, use_container_width=True, hide_index=True)
+    st.subheader("🔑 Key Risk Factors")
+    # Horizontal bar chart for Feature Importance
+    fig_importance = px.bar(
+        features.head(10), 
+        x='importance', 
+        y='feature', 
+        orientation='h',
+        color='importance',
+        color_continuous_scale='Blues'
+    )
+    fig_importance.update_layout(
+        showlegend=False,
+        margin=dict(l=20, r=20, t=30, b=20),
+        yaxis={'categoryorder':'total ascending'},
+        xaxis_title="Importance Score",
+        yaxis_title=None,
+        height=400
+    )
+    st.plotly_chart(fig_importance, use_container_width=True)
+
+st.divider()
+
+# ── Performance Section ───────────────────────────────────
+st.subheader("🎯 Model Performance Metrics")
+perf = results['result_type'].value_counts().reset_index()
+perf.columns = ['Result Type', 'Count']
+st.dataframe(perf, use_container_width=True, hide_index=True)
 
 st.divider()
 
 # ── Risk Simulator ────────────────────────────────────────
 st.subheader("🔮 Individual Risk Simulator")
-st.markdown("Adjust parameters to predict the probability of default.")
+st.markdown("Adjust customer parameters to predict the probability of default.")
 
 sim_col1, sim_col2, sim_col3 = st.columns(3)
 
 with sim_col1:
     age               = st.slider("Age", 21, 100, 45)
-    monthly_income    = st.number_input("Monthly Income ($)", 0, 100000, 5000)
+    monthly_income    = st.number_input("Monthly Income (CAD $)", 0, 100000, 5000)
     debt_ratio        = st.slider("Debt Ratio (Debt/Income)", 0.0, 5.0, 0.3)
 
 with sim_col2:
@@ -115,30 +136,30 @@ with sim_col3:
     late_90    = st.slider("Late 90+ Days (Times)",   0, 10, 0)
     dependents = st.slider("Dependents", 0, 10, 0)
 
-# Engenharia de atributos para o simulador
+# Feature Engineering for the Simulator
 total_late  = late_30_59 + late_60_89 + late_90
 high_util   = 1 if revolving_util > 0.75 else 0
 debt_income = debt_ratio * monthly_income
 
-# DataFrame de entrada com nomes de colunas idênticos ao treinamento
+# Input DataFrame (must match the training columns exactly)
 input_data = pd.DataFrame([{
     'RevolvingUtilizationOfUnsecuredLines': revolving_util,
-    'age':                                   age,
+    'age':                                  age,
     'NumberOfTime30-59DaysPastDueNotWorse': late_30_59,
     'DebtRatio':                            debt_ratio,
     'MonthlyIncome':                        monthly_income,
-    'NumberOfOpenCreditLinesAndLoans':       open_credit_lines,
-    'NumberOfTimes90DaysLate':               late_90,
-    'NumberRealEstateLoansOrLines':          real_estate_loans,
+    'NumberOfOpenCreditLinesAndLoans':      open_credit_lines,
+    'NumberOfTimes90DaysLate':              late_90,
+    'NumberRealEstateLoansOrLines':         real_estate_loans,
     'NumberOfTime60-89DaysPastDueNotWorse': late_60_89,
-    'NumberOfDependents':                    dependents,
+    'NumberOfDependents':                   dependents,
     'debt_to_income':                       debt_income,
     'total_late_payments':                  total_late,
     'high_utilization':                     high_util,
 }])
 
 if st.button("🚀 Calculate Risk Score", type="primary", use_container_width=True):
-    # Predição de probabilidade
+    # Probability prediction
     prob = model.predict_proba(input_data)[0][1]
 
     st.markdown(f"### Probability of Default: **{prob:.2%}**")

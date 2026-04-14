@@ -119,7 +119,7 @@ streamlit run dashboard/app.py
 ## 👤 Author
 
 **Pedro Albuquerque**  
-Data Scientist | Data Scientist Data Analyst 
+Data Scientist | Data Analyst 
 
 [GitHub](https://github.com/PedroAlbuquerque25)
 
