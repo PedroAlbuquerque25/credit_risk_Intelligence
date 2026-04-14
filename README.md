@@ -3,7 +3,7 @@
 ## Predicting Loan Default Risk for Canadian Banking Institutions
 
 <div align="center">
-  <img src="dashboard/dashboard_demo.gif" alt="Credit Risk Dashboard Demo" width="900">
+  <img src="dashboard/dashboard_demo.gif?v=2" alt="Credit Risk Dashboard Demo" width="900">
 </div>
 
 <br>
