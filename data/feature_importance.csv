@@ -1,0 +1,14 @@
+feature,importance
+total_late_payments,0.23519761993081068
+RevolvingUtilizationOfUnsecuredLines,0.2289012803300166
+high_utilization,0.09832541359325656
+NumberOfTimes90DaysLate,0.09401605362288583
+NumberOfTime30-59DaysPastDueNotWorse,0.0827133121629001
+NumberOfTime60-89DaysPastDueNotWorse,0.05122396151079546
+age,0.049728248200128417
+DebtRatio,0.04049186266406424
+debt_to_income,0.03425458661402934
+NumberOfOpenCreditLinesAndLoans,0.03018787451120753
+MonthlyIncome,0.0301108378563422
+NumberRealEstateLoansOrLines,0.01678101759095789
+NumberOfDependents,0.008067931412605244
