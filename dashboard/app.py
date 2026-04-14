@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import pickle
 import os
+from pathlib import Path
 
 # ── Page config ──────────────────────────────────────────
 st.set_page_config(
@@ -11,25 +12,34 @@ st.set_page_config(
     layout="wide"
 )
 
+# ── Dynamic Paths ─────────────────────────────────────────
+# This finds the absolute path of the repository root
+# Path(__file__).parent is the 'dashboard' folder
+# .parent again is the root folder of the project
+ROOT_DIR = Path(__file__).parent.parent
+
 # ── Load data ─────────────────────────────────────────────
 @st.cache_data
 def load_data():
     """
-    Loads required datasets from the data folder.
-    Streamlit Cloud looks for paths starting from the repository root.
+    Loads required datasets using absolute paths derived from ROOT_DIR.
     """
-    # Direct paths are more reliable on Streamlit Cloud deployment
-    segments = pd.read_csv('data/customer_segments.csv')
-    results  = pd.read_csv('data/model_results.csv')
-    features = pd.read_csv('data/feature_importance.csv')
+    segments_path = ROOT_DIR / 'data' / 'customer_segments.csv'
+    results_path  = ROOT_DIR / 'data' / 'model_results.csv'
+    features_path = ROOT_DIR / 'data' / 'feature_importance.csv'
+
+    segments = pd.read_csv(segments_path)
+    results  = pd.read_csv(results_path)
+    features = pd.read_csv(features_path)
     return segments, results, features
 
 @st.cache_resource
 def load_model():
     """
-    Loads the pre-trained Random Forest model.
+    Loads the pre-trained Random Forest model from the dashboard folder.
     """
-    with open('dashboard/model.pkl', 'rb') as f:
+    model_path = ROOT_DIR / 'dashboard' / 'model.pkl'
+    with open(model_path, 'rb') as f:
         return pickle.load(f)
 
 # Data execution and Error Handling
@@ -38,7 +48,7 @@ try:
     model = load_model()
 except Exception as e:
     st.error(f"❌ Error loading files: {e}")
-    st.info("Ensure the 'data' and 'dashboard' folders are in the root of your repository.")
+    st.info(f"System Root: {ROOT_DIR}")
     st.stop()
 
 # ── Header ────────────────────────────────────────────────
@@ -88,7 +98,6 @@ with col_left:
 
 with col_right:
     st.subheader("🔑 Key Risk Factors")
-    # Horizontal bar chart for Feature Importance
     fig_importance = px.bar(
         features.head(10), 
         x='importance', 
@@ -144,7 +153,7 @@ total_late  = late_30_59 + late_60_89 + late_90
 high_util   = 1 if revolving_util > 0.75 else 0
 debt_income = debt_ratio * monthly_income
 
-# Input DataFrame (must match the training columns exactly)
+# Input DataFrame
 input_data = pd.DataFrame([{
     'RevolvingUtilizationOfUnsecuredLines': revolving_util,
     'age':                                  age,
@@ -162,9 +171,7 @@ input_data = pd.DataFrame([{
 }])
 
 if st.button("🚀 Calculate Risk Score", type="primary", use_container_width=True):
-    # Probability prediction
     prob = model.predict_proba(input_data)[0][1]
-
     st.markdown(f"### Probability of Default: **{prob:.2%}**")
     st.progress(prob)
 
