@@ -11,38 +11,34 @@ st.set_page_config(
     layout="wide"
 )
 
-# ── Paths ─────────────────────────────────────────────────
-# This logic ensures the app finds files regardless of the environment
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__)) # dashboard/ folder
-BASE_DIR = os.path.dirname(CURRENT_DIR)                 # project root folder
-
 # ── Load data ─────────────────────────────────────────────
 @st.cache_data
 def load_data():
-    # Constructing dynamic absolute paths
-    seg_path = os.path.join(BASE_DIR, 'data', 'customer_segments.csv')
-    res_path = os.path.join(BASE_DIR, 'data', 'model_results.csv')
-    feat_path = os.path.join(BASE_DIR, 'data', 'feature_importance.csv')
-    
-    segments = pd.read_csv(seg_path)
-    results  = pd.read_csv(res_path)
-    features = pd.read_csv(feat_path)
+    """
+    Loads required datasets from the data folder.
+    Streamlit Cloud looks for paths starting from the repository root.
+    """
+    # Direct paths are more reliable on Streamlit Cloud deployment
+    segments = pd.read_csv('data/customer_segments.csv')
+    results  = pd.read_csv('data/model_results.csv')
+    features = pd.read_csv('data/feature_importance.csv')
     return segments, results, features
 
 @st.cache_resource
 def load_model():
-    # The model is located in the same folder as app.py (dashboard/)
-    model_path = os.path.join(CURRENT_DIR, 'model.pkl')
-    with open(model_path, 'rb') as f:
+    """
+    Loads the pre-trained Random Forest model.
+    """
+    with open('dashboard/model.pkl', 'rb') as f:
         return pickle.load(f)
 
-# Execution of data loading
+# Data execution and Error Handling
 try:
     segments, results, features = load_data()
     model = load_model()
 except Exception as e:
     st.error(f"❌ Error loading files: {e}")
-    st.info("Check if all CSV files are in the /data folder and model.pkl is in /dashboard")
+    st.info("Ensure the 'data' and 'dashboard' folders are in the root of your repository.")
     st.stop()
 
 # ── Header ────────────────────────────────────────────────
